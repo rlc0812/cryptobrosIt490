@@ -1,0 +1,109 @@
+Richard Chipman
+IT 490 Cryptos Bros Project
+Professor Kehoe
+
+Database Function Instructions
+
+File/Function List:
+
+Coin Manipulation
+
+1.breakForDatabase.php
+	This file calls a function from "simpleapi.php" to receive a large amount of data in a Std Obj format.  
+	breakForDatabase splits this raw data by taking the array from simpleapi and storing it in another associative array
+	which has the names for the coins we are using as the keys. This array is stored as $theArray and is used in
+	my file 'rickys_scripts.php' in a function called 'makeCoinTable()' in this function it loops 5 times each time 
+	switching the key each time by the name of the key (for example case o: $coin = 'bitcoin'). Using this loop with
+	the switch statement inside each row is queried and entered into the database one at a time with the values: FROMSYMBOL,
+	COINID, PRICE, LASTUPDATE, VOLUME24HOUR, OPENDAY, HIGHDAY, LOWDAY, CHANGEPCT24HOUR, TOTALVOLUME24H.
+
+//Gets whole table of coinData for use on front end
+2. 'rickys_scripts.php': function getCoinData() 
+	This function used as a way to query the coinTable to receive all of the values in it to return to the front as an 
+	associative array to populate a table with the current values of each type type of coin.
+
+//Buying and selling coins
+3. 'rickys_scripts.php' function buyCoins($userID, $coinSell, $coinBuy, $amount)
+	In this script various switch statements are used to determine the queries to be used in the script based on the values passed.
+	There are 3 queries used one that selects the balances of each coin from the userWallet that is passed to the function, the next
+	selects the values of each coin from coinTable to get the value of each coin, the last will update the userWallet if the value of
+	coin(s) that the user has to trade exceed the value of the coin(s) that are being purchased.
+
+
+
+User Creation/Authentication
+
+'rickys_scripts.php': function insertUser($array) 
+	This function receives an array from the front end which contains 3 values username, password, email of the user attempting
+	to create an account. The function creates a hash for the password the user entered and escapes each of the values to prevent
+	SQL injection. It then runs through a loop to randomize the userID until it finds gets a unique ID that is not present within
+	the database table 'authTable'.
+	Once it is done it makes sure the username entered is not present in the table, if it is it returns an error statement to the
+	front end, in returning this message ends execution of the function. It uses BCRYPT the hash the password before entering it.
+	If everything is clear it will run an insert query to insert userID, username, password, email and lastLogin(which is 0 at this
+	point to show they havn't logged in yet). Default values for the userWallet are also inserted into the table and linked by userID.
+
+'rickys_scripts.php': function doLogin($array)
+	This function receives the username and password entered from the front end and selects userID, username, and password from the
+	authTable to use for verification. It compares the entered password to the hashed password and the username to entered username
+	if a match is found the userID is returned if both do not match an entry in the database false is returned.
+
+Files Included:
+connect.inc
+	This file establishes a connection to my database using the values from 'config.php' which is included in it
+
+Creation of the tables I am using: (You can copy and paste from top to bottom to create them in sql)
+
+CREATE TABLE authTable (
+userID int NOT NULL,
+username varchar(15),
+password varchar(255),
+email varchar(255),
+lastLogin int NOT NULL,
+PRIMARY KEY (userID)
+);
+
+CREATE TABLE coinTable (
+symbol varchar(5),
+coinID int NOT NULL,
+coinPrice float,
+lastUpdate int,
+24Volume float,
+openDay float,
+highDay float,
+lowDay float,
+changePct24Hour float,
+totalVolume24H float, 
+PRIMARY KEY (coinID)
+);
+
+CREATE TABLE userWallet (
+userID int NOT NULL,
+balance float,
+bitcoinBalance float,
+etheriumBalance float,
+litecoinBalance float,
+bitcoincashBalance float,
+tronBalance float,
+FOREIGN KEY (userID) 
+REFERENCES 
+authTable(userID),
+PRIMARY KEY (userID)
+);
+
+CREATE TABLE transTable (
+timeStamp int NOT NULL,
+totalBTCValue float,
+purchasedValue float,
+totalCoinsBought float,
+coinA int,
+coinB int,
+FOREIGN KEY (coinA) 
+REFERENCES 
+coinTable(coinID),
+FOREIGN KEY (coinB)  
+REFERENCES
+coinTable(coinID),
+PRIMARY KEY (timeStamp, 
+coinA, coinB)
+);
