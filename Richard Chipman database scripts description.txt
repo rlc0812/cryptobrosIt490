@@ -54,6 +54,7 @@ connect.inc
 
 Creation of the tables I am using: (You can copy and paste from top to bottom to create them in sql)
 
+
 CREATE TABLE authTable (
 userID int NOT NULL,
 username varchar(15),
@@ -66,25 +67,25 @@ PRIMARY KEY (userID)
 CREATE TABLE coinTable (
 symbol varchar(5),
 coinID int NOT NULL,
-coinPrice float,
+coinPrice decimal(20,8),
 lastUpdate int,
-24Volume float,
-openDay float,
-highDay float,
-lowDay float,
-changePct24Hour float,
-totalVolume24H float, 
+24Volume decimal(30,8),
+openDay decimal(20,8),
+highDay decimal(20,8),
+lowDay decimal(12,8),
+changePct24Hour decimal(10,8),
+totalVolume24H decimal(30,8), 
 PRIMARY KEY (coinID)
 );
 
 CREATE TABLE userWallet (
 userID int NOT NULL,
-balance float,
-bitcoinBalance float,
-etheriumBalance float,
-litecoinBalance float,
-bitcoincashBalance float,
-tronBalance float,
+balance decimal(14,2),
+bitcoinBalance decimal(20,8),
+etheriumBalance decimal(20,8),
+litecoinBalance decimal(20,8),
+bitcoincashBalance decimal(20,8),
+tronBalance decimal(20,8),
 FOREIGN KEY (userID) 
 REFERENCES 
 authTable(userID),
@@ -93,9 +94,9 @@ PRIMARY KEY (userID)
 
 CREATE TABLE transTable (
 timeStamp int NOT NULL,
-totalBTCValue float,
-purchasedValue float,
-totalCoinsBought float,
+totalBTCValue decimal(30,8),
+purchasedValue decimal(30,8),
+totalCoinsBought decimal(10,8),
 coinA int,
 coinB int,
 FOREIGN KEY (coinA) 
